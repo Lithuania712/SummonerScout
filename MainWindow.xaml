@@ -1,0 +1,162 @@
+<Window x:Class="SummonerScout.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SummonerScout" Height="900" Width="1150" MinWidth="800" MinHeight="600"
+        Background="#010A13" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="GoldText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#C89B3C"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        <Style x:Key="LightText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#F0E6D2"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        <Style x:Key="MutedText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#5A6A7A"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Search View -->
+        <Grid x:Name="SearchView" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Width="600">
+                <TextBlock Text="SUMMONERSCOUT" FontSize="36" FontWeight="Bold" Foreground="#F0E6D2"
+                           HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                <TextBlock Text="League of Legends Player Analytics" FontSize="12" Foreground="#5A6A7A"
+                           HorizontalAlignment="Center" Margin="0,0,0,40"/>
+
+                <Border Background="#0A1929" BorderBrush="#1E3A5F" BorderThickness="1" CornerRadius="12" Padding="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="70"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="RegionBox" Grid.Column="0" Background="Transparent" Foreground="#C89B3C"
+                                  BorderThickness="0" FontWeight="Bold" FontSize="13" Padding="10,10"
+                                  VerticalContentAlignment="Center"/>
+                        <TextBox x:Name="NameBox" Grid.Column="1" Background="Transparent" Foreground="#F0E6D2"
+                                 BorderThickness="0" FontSize="14" Padding="10,10" VerticalContentAlignment="Center"
+                                 Text="" CaretBrush="#C89B3C"/>
+                        <TextBlock Grid.Column="2" Text="#" Foreground="#C89B3C" FontWeight="Bold" FontSize="16"
+                                   VerticalAlignment="Center" Margin="0,0,0,0"/>
+                        <TextBox x:Name="TagBox" Grid.Column="3" Background="Transparent" Foreground="#F0E6D2"
+                                 BorderThickness="0" FontSize="14" Padding="5,10" VerticalContentAlignment="Center"
+                                 Text="EUW" CaretBrush="#C89B3C"/>
+                        <Button x:Name="SearchBtn" Grid.Column="4" Content="SCOUT" Click="SearchBtn_Click"
+                                Background="#C89B3C" Foreground="#010A13" FontWeight="Bold" FontSize="12"
+                                BorderThickness="0" Cursor="Hand" Padding="15,10"/>
+                    </Grid>
+                </Border>
+
+                <Border x:Name="ApiKeyPanel" Visibility="Collapsed"/>
+
+                <TextBlock x:Name="ErrorText" Foreground="#E84057" FontSize="12" HorizontalAlignment="Center"
+                           Margin="0,15,0,0" Visibility="Collapsed"/>
+                <TextBlock x:Name="LoadingText" Text="Scouting summoner data..." Foreground="#5A6A7A"
+                           FontSize="12" HorizontalAlignment="Center" Margin="0,15,0,0" Visibility="Collapsed"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Profile View -->
+        <Grid x:Name="ProfileView" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Margin="30,20,30,30">
+                    <!-- Back Button -->
+                    <Button x:Name="BackBtn" Content="? New Search" Click="BackBtn_Click"
+                            Background="Transparent" Foreground="#5A6A7A" BorderBrush="#1E3A5F"
+                            BorderThickness="1" Padding="12,6" HorizontalAlignment="Left"
+                            Margin="0,0,0,15" Cursor="Hand" FontSize="12"/>
+
+                    <!-- Summoner Header -->
+                    <Border Background="#0A1929" BorderBrush="#1A2A3A" BorderThickness="1" CornerRadius="16" Padding="25,20" Margin="0,0,0,15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0" Margin="0,0,20,0">
+                                <Ellipse Width="80" Height="80" Stroke="#C89B3C" StrokeThickness="2">
+                                    <Ellipse.Fill>
+                                        <ImageBrush x:Name="SummonerIcon" Stretch="UniformToFill"/>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <Border Background="#C89B3C" CornerRadius="10" Padding="8,2" HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom" Margin="0,0,0,-6">
+                                    <TextBlock x:Name="LevelText" FontSize="10" FontWeight="Bold" Foreground="#010A13"/>
+                                </Border>
+                            </Grid>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock x:Name="SummonerNameText" FontSize="24" FontWeight="Bold" Foreground="#F0E6D2"/>
+                                <TextBlock x:Name="RegionText" FontSize="10" Foreground="#C89B3C" Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <StackPanel x:Name="RankBadgesPanel" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Ranked Cards Row -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Solo/Duo Card -->
+                        <Border Grid.Column="0" Background="#0A1929" BorderBrush="#1A2A3A" BorderThickness="1" CornerRadius="16" Padding="20,18">
+                            <StackPanel>
+                                <TextBlock Text="RANKED SOLO/DUO" Style="{StaticResource GoldText}" FontSize="10" FontWeight="Bold" Margin="0,0,0,12"/>
+                                <StackPanel x:Name="SoloRankPanel"/>
+                                <StackPanel x:Name="SoloPastPanel" Margin="0,12,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- Flex Card -->
+                        <Border Grid.Column="2" Background="#0A1929" BorderBrush="#1A2A3A" BorderThickness="1" CornerRadius="16" Padding="20,18">
+                            <StackPanel>
+                                <TextBlock Text="RANKED FLEX" Style="{StaticResource GoldText}" FontSize="10" FontWeight="Bold" Margin="0,0,0,12"/>
+                                <StackPanel x:Name="FlexRankPanel"/>
+                                <StackPanel x:Name="FlexPastPanel" Margin="0,12,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Stats Row -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Win Rate -->
+                        <Border Grid.Column="0" Background="#0A1929" BorderBrush="#1A2A3A" BorderThickness="1" CornerRadius="16" Padding="20,18">
+                            <StackPanel>
+                                <TextBlock Text="OVERALL PERFORMANCE" Style="{StaticResource GoldText}" FontSize="10" FontWeight="Bold" Margin="0,0,0,15"/>
+                                <StackPanel x:Name="WinRatePanel"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- Champions -->
+                        <Border Grid.Column="2" Background="#0A1929" BorderBrush="#1A2A3A" BorderThickness="1" CornerRadius="16" Padding="20,18">
+                            <StackPanel>
+                                <TextBlock Text="MOST PLAYED CHAMPIONS" Style="{StaticResource GoldText}" FontSize="10" FontWeight="Bold" Margin="0,0,0,15"/>
+                                <StackPanel x:Name="ChampionsPanel"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Match History -->
+                    <Border Background="#0A1929" BorderBrush="#1A2A3A" BorderThickness="1" CornerRadius="16" Padding="20,18">
+                        <StackPanel>
+                            <TextBlock Text="RECENT MATCHES" Style="{StaticResource GoldText}" FontSize="10" FontWeight="Bold" Margin="0,0,0,15"/>
+                            <StackPanel x:Name="MatchListPanel"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
+
